@@ -1,0 +1,34 @@
+FROM python:3.10-slim-bullseye
+
+# Instal b
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        libssl-dev \
+        pkg-config \
+        zlib1g-dev \
+    ; \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Rust 1.66.0
+RUN set -eux; \
+    curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain 1.66.0 -y; \
+    rm -rf ~/.cargo/registry
+
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Install docker-compose
+RUN set -eux; \
+    pip install docker-compose
+
+# Intall rust dependencies
+RUN curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin; \
+    cargo install cargo-llvm-cov
+
+ENTRYPOINT ["bash"]
+
+
