@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.11-slim-bullseye
 
 # Instal b
 RUN set -eux; \
@@ -11,12 +11,13 @@ RUN set -eux; \
         libssl-dev \
         pkg-config \
         zlib1g-dev \
+        wget \
     ; \
     rm -rf /var/lib/apt/lists/*
 
-# Install Rust 1.66.0
+# Install Rust 1.67.1
 RUN set -eux; \
-    curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain 1.66.0 -y; \
+    curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain 1.67.1 -y; \
     rm -rf ~/.cargo/registry
 
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -29,6 +30,12 @@ RUN set -eux; \
 RUN curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin; \
     cargo install cargo-llvm-cov
 
+#  Install mold linker 1.10.1
+RUN set -eux; \
+    curl -L https://github.com/rui314/mold/releases/download/v1.10.1/mold-1.10.1-x86_64-linux.tar.gz | tar -xz -C /usr/local/bin; \
+    mv /usr/local/bin/mold-1.10.1-x86_64-linux /usr/local/bin/mold; \
+    chmod +x /usr/local/bin/mold
+ENV MOLD_BIN_PATH="/usr/local/bin/mold/bin/mold"
 ENTRYPOINT ["bash"]
 
 
